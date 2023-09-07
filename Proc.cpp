@@ -214,8 +214,10 @@ bool Proc::AOBScanUsefulRegions(std::vector<uint8_t>toScanFor, size_t& addr)
 Proc::~Proc()
 {
 	std::cout << "Closed the PROC!\n";
+	//even though we close the snapshot before, it's still good to check in case our process dies
 	if (snapshot != INVALID_HANDLE_VALUE)
 		CloseHandle(snapshot);
 
-	CloseHandle(hProc);
+	if (hProc != INVALID_HANDLE_VALUE) //this check is to prevent exceptions when our program (inevitably) crashes when debugging.
+		CloseHandle(hProc); 
 }

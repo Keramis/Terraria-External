@@ -40,6 +40,9 @@ public:
 	{
 		return ReadProcessMemory(hProc, baseAddr, &output, numBytesRead, NULL);
 	}
-	void DebugScanPrimaryModule();
+	inline bool WriteToProcessMemoryExplicit(void* address, uint8_t writeData[], size_t writeAmount)
+	{
+		return WriteProcessMemory(hProc, address, (void*)(&writeData), writeAmount, NULL);
+	}
 	bool AOBScanUsefulRegions(std::vector<uint8_t>, size_t&);
 };
