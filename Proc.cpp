@@ -14,9 +14,53 @@ void Proc::debugPrint(std::wstring print)
 		std::wcout << print << std::endl;
 }
 
-Proc::Proc(DWORD pid)
+DWORD findPID(std::wstring processName)
 {
-	this->pid = pid;
+	//get the process PID, then call the PID constructor.
+	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (snapshot == INVALID_HANDLE_VALUE)
+		std::cerr << "Invalid handle value while trying to SnapProcess!";
+
+	PROCESSENTRY32 procEntry{};
+	procEntry.dwSize = sizeof(PROCESSENTRY32);
+	if (Process32First(snapshot, &procEntry))
+	{
+		bool found = false;
+		while (Process32Next(snapshot, &procEntry))
+		{
+			std::wcout << "Checking " << procEntry.szExeFile << '\n';
+			if (procEntry.szExeFile == processName)
+			{
+				std::wcout << "Process " << procEntry.szExeFile << " / with PID [" << procEntry.th32ProcessID << "] seems to have matched!\n";
+				found = true;
+				break;
+			}
+		}
+		if (found)
+		{
+			DWORD procID = procEntry.th32ProcessID;
+			if (snapshot != 0) //get rid of annoying warning >:(
+				CloseHandle(snapshot);
+			snapshot = INVALID_HANDLE_VALUE; //safeguard
+
+			return procID;
+		}
+	}
+	else
+		std::cerr << "Failed getting Process32First! Look into this.\n";
+	return 0;
+}
+
+Proc::Proc(std::wstring processName)
+{
+
+	this->pid = findPID(processName);
+	std::cout << ">>> Working with PID: " << this->pid << '\n';
+	if (pid == 0) //safeguard
+	{
+		CloseAndError("Failed to get a proper PID!");
+	}
+
 	//get the handle to the process
 	hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, this->pid);
 	if (hProc == INVALID_HANDLE_VALUE)
@@ -215,9 +259,9 @@ Proc::~Proc()
 {
 	std::cout << "Closed the PROC!\n";
 	//even though we close the snapshot before, it's still good to check in case our process dies
-	if (snapshot != INVALID_HANDLE_VALUE)
+	if (snapshot != INVALID_HANDLE_VALUE || snapshot == 0)
 		CloseHandle(snapshot);
 
-	if (hProc != INVALID_HANDLE_VALUE) //this check is to prevent exceptions when our program (inevitably) crashes when debugging.
+	if (hProc != INVALID_HANDLE_VALUE || snapshot == 0) //this check is to prevent exceptions when our program (inevitably) crashes when debugging.
 		CloseHandle(hProc); 
 }

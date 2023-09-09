@@ -5,7 +5,8 @@ typedef unsigned int uint;
 
 int main()
 {
-	Proc a(21108);
+	Proc a(L"Terraria.exe");
+
 	std::vector<uint8_t> godmodeAOB{ 0x29, 0x82, 0x08, 0x04, 0x00, 0x00 };
 	size_t add;
 	if (a.AOBScanUsefulRegions(godmodeAOB, add))
@@ -18,8 +19,8 @@ int main()
 		if (_getch() == '1')
 		{
 			uint8_t b[6]{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
-			//if (WriteProcessMemory(a.getHandle(), (void*)(add), &b, 6, NULL))
-			if (a.WriteToProcessMemoryExplicit((void*)add, b, 6))
+			if (WriteProcessMemory(a.getHandle(), (void*)(add), &b, 6, NULL))
+			//if (a.WriteToProcessMemoryExplicit((void*)add, b, 6)) //for some reason it's crashing with the wrapper function.
 				std::cout << "Write godmode enable successful!\n";
 			else
 				std::cout << "Unsucessful.\n";
@@ -27,8 +28,8 @@ int main()
 		else if (_getch() == '2')
 		{
 			uint8_t b[6]{ 0x29, 0x82, 0x08, 0x04, 0x00, 0x00 }; //fix this, this shit don't write lmfao
-			//if (WriteProcessMemory(a.getHandle(), (void*)(add), &b, 6, NULL))
-			if (a.WriteToProcessMemoryExplicit((void*)(add), b, 6))
+			if (WriteProcessMemory(a.getHandle(), (void*)(add), &b, 6, NULL))
+			//if (a.WriteToProcessMemoryExplicit((void*)(add), b, 6))
 				std::cout << "Write godmode disable successful!\n";
 			else
 				std::cout << "Unsucessful.\n";
@@ -36,7 +37,8 @@ int main()
 		else if (_getch() == 'n')
 		{
 			a.~Proc();
-			break;
+			exit(0);
+			//break;
 		}
 		Sleep(300);
 	}
