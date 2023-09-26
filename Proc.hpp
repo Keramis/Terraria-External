@@ -17,6 +17,7 @@ private:
 	DWORD pageSize{};
 	BYTE* primaryModuleBaseAddress{};
 public:
+	bool closed{ false };
 	Proc(std::wstring processName);
 	void CloseAndError(std::string error);
 	~Proc();

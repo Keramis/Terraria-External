@@ -211,8 +211,6 @@ bool Proc::AOBScanUsefulRegions(std::vector<uint8_t>toScanFor, size_t& addr)
 {
 	for (auto const& info : getUsefulRegions())
 	{
-		//std::cout << "Scanning 0x" << std::hex << (size_t)(info.BaseAddress) << std::dec << std::endl;
-		//std::cout << "REGIONSIZE: " << info.RegionSize << std::endl;
 		uint8_t* buf = new uint8_t[info.RegionSize];
 		if (buf == nullptr)
 		{
@@ -264,4 +262,6 @@ Proc::~Proc()
 
 	if (hProc != INVALID_HANDLE_VALUE || snapshot == 0) //this check is to prevent exceptions when our program (inevitably) crashes when debugging.
 		CloseHandle(hProc); 
+
+	closed = true;
 }
